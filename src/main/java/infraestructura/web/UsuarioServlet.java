@@ -5,11 +5,11 @@ import aplicacion.caso_uso.ListarUsuariosCasoUso;
 import dominio.modelo.Usuario;
 import infraestructura.persistencia.UsuarioRepositoryJDBC;
 
-import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.util.List;
@@ -17,15 +17,15 @@ import java.util.List;
 @WebServlet("/usuarios")
 public class UsuarioServlet extends HttpServlet {
 
-    private CrearUsuarioUseCase crearUsuarioCasoUso;
-    private ListarUsuariosUseCase listarUsuariosCasoUso;
+    private CrearUsuarioCasoUso crearUsuarioCasoUso;
+    private ListarUsuariosCasoUso listarUsuariosCasoUso;
 
     @Override
     public void init() throws ServletException {
         // Inyección manual de dependencias segun la arquitectura hexagonal
         UsuarioRepositoryJDBC repository = new UsuarioRepositoryJDBC();
-        this.crearUsuarioUseCase = new CrearUsuarioUseCase(repository);
-        this.listarUsuariosUseCase = new ListarUsuariosUseCase(repository);
+        this.crearUsuarioCasoUso = new CrearUsuarioCasoUso(repository);
+        this.listarUsuariosCasoUso = new ListarUsuariosCasoUso(repository);
     }
 
     @Override
@@ -35,7 +35,7 @@ public class UsuarioServlet extends HttpServlet {
         if ("nuevo".equals(accion)) {
             req.getRequestDispatcher("/crear-usuario.jsp").forward(req, resp);
         } else {
-            List<Usuario> lista = listarUsuariosUseCase.ejecutar();
+            List<Usuario> lista = listarUsuariosCasoUso.ejecutar();
             req.setAttribute("usuarios", lista);
             req.getRequestDispatcher("/listar-usuarios.jsp").forward(req, resp);
         }
@@ -49,7 +49,7 @@ public class UsuarioServlet extends HttpServlet {
         String tipo = req.getParameter("tipo");
 
         Usuario usuario = new Usuario(0, nombre, email, password, tipo);
-        crearUsuarioUseCase.ejecutar(usuario);
+        crearUsuarioCasoUso.ejecutar(usuario);
 
         resp.sendRedirect(req.getContextPath() + "/usuarios");
     }
